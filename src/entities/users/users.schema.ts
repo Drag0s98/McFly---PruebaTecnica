@@ -28,8 +28,23 @@ export class User {
   @Prop({ default: false })
   isActive: boolean;
 
-  @Prop([String])
-  notifications: string[];
+  @Prop([
+    raw({
+      sender: { type: String },
+      addressee: { type: String },
+      text: { type: String },
+    }),
+  ])
+  notifications: Record<string, any>;
+
+  @Prop([
+    raw({
+      sender: { type: String },
+      addressee: { type: String },
+      text: { type: String },
+    }),
+  ])
+  message: Record<string, any>;
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User);
