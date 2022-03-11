@@ -31,7 +31,6 @@ export class User {
   @Prop([
     raw({
       sender: { type: String },
-      addressee: { type: String },
       text: { type: String },
     }),
   ])

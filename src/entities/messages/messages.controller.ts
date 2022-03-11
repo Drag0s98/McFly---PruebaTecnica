@@ -14,6 +14,12 @@ export class MessagesController {
     return this.messageService.getMessageByEmail(req.user.email);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('notifications')
+  getNotifications(@Request() req) {
+    return this.messageService.getNotificationsByEmail(req.user.email);
+  }
+
   @Put()
   async sendMessage(@Body() messageInput: MessageDto) {
     return await this.messageService.sendMessage(messageInput);

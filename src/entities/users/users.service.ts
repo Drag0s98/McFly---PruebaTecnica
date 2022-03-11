@@ -61,4 +61,13 @@ export class UsersService {
       { $push: updateUserDto },
     );
   }
+
+  async changeStatus(email: string) {
+    const user = await this.findByEmail(email);
+    await this.usersModule.updateOne(
+      { email: email },
+      { isActive: !user.isActive },
+    );
+    return user;
+  }
 }

@@ -22,7 +22,11 @@ export class MessagesService {
 
   async getMessageByEmail(email: string) {
     const user = await this.usersService.findByEmail(email);
-    console.log(user.message);
     return user.message;
+  }
+
+  async getNotificationsByEmail(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    return user.notifications;
   }
 }

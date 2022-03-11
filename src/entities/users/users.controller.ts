@@ -65,4 +65,10 @@ export class UsersController {
   async getUser(@Req() request) {
     return await this.usersService.findByEmail(request.user.email);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('status')
+  async changeStatus(@Req() request) {
+    return await this.usersService.changeStatus(request.user.email);
+  }
 }
