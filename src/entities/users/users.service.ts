@@ -9,15 +9,19 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private usersModule: Model<UserDocument>,
+    @InjectModel(User.name) private usersModel: Model<UserDocument>,
   ) {}
 
-  async findAll() {
-    return await this.usersModule.find();
+  async findAll(): Promise<User[]> {
+    return await this.usersModel.find();
   }
 
   async findByEmail(email: string): Promise<User> {
-    return await this.usersModule.findOne({ email: email });
+    return await this.usersModel.findOne({ email: email });
+  }
+
+  async findMany(emails: string[]): Promise<User[]> {
+    return await this.usersModel.find().where('email').in(emails).exec();
   }
 
   async create(userData: NewUserDto): Promise<User> {
@@ -26,7 +30,7 @@ export class UsersService {
     const user = await this.findByEmail(userData.email);
 
     if (!user) {
-      return await new this.usersModule({
+      return await new this.usersModel({
         ...userData,
         createAt: new Date(),
       }).save();
@@ -34,37 +38,40 @@ export class UsersService {
     throw new NotFoundException('User already exits');
   }
 
-  async update(email: string, updateUserDto: UpdateUserDto) {
+  async update(email: string, updateUserDto: UpdateUserDto): Promise<User> {
     if (!updateUserDto.message) {
-      return await this.usersModule.findOneAndUpdate(
+      return await this.usersModel.findOneAndUpdate(
         { email: email },
         updateUserDto,
       );
     }
 
     if (updateUserDto.message) {
-      await this.usersModule.findOneAndUpdate(
+      return await this.usersModel.findOneAndUpdate(
         { email: email },
         { $push: updateUserDto },
       );
     }
   }
 
-  async getActiveUsers() {
+  async getActiveUsers(): Promise<User[]> {
     const users = await this.findAll();
     return users.filter((user) => !!user.isActive);
   }
 
-  async addNotification(email: string, updateUserDto: UpdateUserDto) {
-    await this.usersModule.findOneAndUpdate(
+  async addNotification(
+    email: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    return await this.usersModel.findOneAndUpdate(
       { email: email },
       { $push: updateUserDto },
     );
   }
 
-  async changeStatus(email: string) {
+  async changeStatus(email: string): Promise<User> {
     const user = await this.findByEmail(email);
-    await this.usersModule.updateOne(
+    await this.usersModel.updateOne(
       { email: email },
       { isActive: !user.isActive },
     );

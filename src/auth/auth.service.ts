@@ -1,9 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from 'src/entities/users/users.service';
+import { Injectable } from '@nestjs/common';
+import { UsersService } from '../entities/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
-import { User } from 'src/entities/users/users.schema';
 import * as dotenv from 'dotenv';
 dotenv.config();
 

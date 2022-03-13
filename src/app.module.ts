@@ -1,16 +1,18 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './entities/users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MessagesModule } from './entities/messages/messages.module';
+import * as dotenv from 'dotenv';
+import { DatabaseModule } from './database/database.module';
+import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+dotenv.config();
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      'mongodb+srv://drag0s98:123prueba123@cluster0.lk7uu.mongodb.net/McFly',
-    ),
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
     UsersModule,
     AuthModule,
     MessagesModule,

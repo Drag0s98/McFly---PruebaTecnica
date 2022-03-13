@@ -1,5 +1,7 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { MessageDto } from '../messages/dto/message.dto';
+import { NotificationsDto } from '../messages/dto/notifications.dto';
 
 export type UserDocument = User & Document;
 
@@ -26,7 +28,7 @@ export class User {
   aboutMe: string;
 
   @Prop({ default: false })
-  isActive: boolean;
+  isActive?: boolean;
 
   @Prop([
     raw({
@@ -34,7 +36,7 @@ export class User {
       text: { type: String },
     }),
   ])
-  notifications: Record<string, any>;
+  notifications?: NotificationsDto;
 
   @Prop([
     raw({
@@ -43,7 +45,7 @@ export class User {
       text: { type: String },
     }),
   ])
-  message: Record<string, any>;
+  message?: MessageDto;
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User);

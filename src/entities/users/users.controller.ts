@@ -2,7 +2,8 @@ import {
   Body,
   Controller,
   Get,
-  Param,
+  HttpException,
+  HttpStatus,
   Patch,
   Post,
   Req,
@@ -10,12 +11,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { AuthService } from 'src/auth/auth.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
-import LoginInput from './dto/login.dto';
+import { AuthService } from '../../auth/auth.service';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
+import { LoginDto } from './dto/login.dto';
 import { NewUserDto } from './dto/newUser.dto';
+import { UpdateUserDto } from './dto/updateUser.dto';
 import { UsersService } from './users.service';
+import { validateEmail } from 'src/utils/validateEmail';
 
 @Controller('users')
 export class UsersController {
@@ -29,6 +32,7 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('activeUsers')
   async getActiveUsers() {
     return await this.usersService.getActiveUsers();
@@ -36,18 +40,22 @@ export class UsersController {
 
   @Post()
   async create(@Body() createUserDto: NewUserDto) {
-    return await this.usersService.create(createUserDto);
+    const isEmail = validateEmail(createUserDto.email);
+    if (isEmail) {
+      return await this.usersService.create(createUserDto);
+    }
+    throw new HttpException('Wrong email', HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(
-    @Body() loginInput: LoginInput,
+    @Body() LoginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
     const user = await this.authService.validateUser(
-      loginInput.email,
-      loginInput.password,
+      LoginDto.email,
+      LoginDto.password,
     );
     if (user) {
       return this.authService.login(user._doc.email, response);
@@ -56,7 +64,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Patch()
-  async update(@Body() updateUserDto: NewUserDto, @Req() request) {
+  async update(@Body() updateUserDto: UpdateUserDto, @Req() request) {
     return await this.usersService.update(request.user.email, updateUserDto);
   }
 
